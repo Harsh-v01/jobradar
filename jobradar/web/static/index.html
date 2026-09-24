@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Job Radar</title>
+<link rel="stylesheet" href="/static/styles.css">
+</head>
+<body>
+<header class="topbar">
+  <div class="brand">
+    <span class="mark">◎</span><span class="brandname">Job Radar</span>
+  </div>
+  <div class="stats">
+    <div class="stat"><div class="label">Checked</div>
+      <div class="value"><span id="s-checked">0</span><span class="of">/<span id="s-total">0</span></span></div></div>
+    <div class="stat"><div class="label">Would apply</div><div class="value" id="s-hire">0</div></div>
+    <div class="stat"><div class="label">Avg. match</div><div class="value" id="s-avg">0.00</div></div>
+    <div class="stat"><div class="label">Time</div><div class="value" id="s-time">0.0</div></div>
+    <div class="stat"><div class="label">Cost</div><div class="value" id="s-cost">$0.00</div></div>
+  </div>
+</header>
+
+<div class="titlerow">
+  <h1>Picking the best company for <span id="who">you</span></h1>
+  <div class="controls">
+    <input id="q" class="search" type="search" autocomplete="off"
+           placeholder="Search role or company — e.g. react, intern, Adobe">
+    <select id="minscore" class="sel" title="Minimum match">
+      <option value="0">any match</option>
+      <option value="5">5+</option>
+      <option value="6">6+</option>
+      <option value="7">7+</option>
+      <option value="8">8+</option>
+    </select>
+    <select id="co" class="sel" title="Company"><option value="">all companies</option></select>
+    <label class="chk"><input type="checkbox" id="newonly"> new this week</label>
+    <button id="scan" class="scanbtn">Scan</button>
+  </div>
+</div>
+
+<main>
+  <section class="gridwrap">
+    <div id="grid" class="grid" aria-label="Jobs, tinted by match strength"></div>
+    <div class="legend">
+      <span>less likely</span><i class="ramp"></i><span>more likely</span>
+      <span class="sep"></span>
+      <span id="gridnote">no jobs yet — press Scan</span>
+    </div>
+  </section>
+
+  <aside class="panel">
+    <div class="row">
+      <div class="profile">
+        <div class="avatar" id="avatar">?</div>
+        <div>
+          <div class="kicker">Profile</div>
+          <div class="pname" id="p-name">—</div>
+          <div class="pmeta" id="p-headline"></div>
+          <div class="pmeta" id="p-location"></div>
+        </div>
+      </div>
+      <div class="looking" id="looking">
+        <div class="kicker">Looking at</div>
+        <div class="lk-company" id="lk-company">idle</div>
+        <div class="lk-title" id="lk-title"></div>
+        <div class="lk-score" id="lk-score"></div>
+      </div>
+    </div>
+
+    <div class="kicker sec">Experience</div>
+    <ul class="exp" id="exp"><li class="muted">loading…</li></ul>
+
+    <div class="kicker sec">Checking</div>
+    <ul class="checks" id="checks"></ul>
+
+    <div class="kicker sec">High probability of interviewing</div>
+    <div class="tops" id="tops"><div class="muted">nothing scored yet</div></div>
+  </aside>
+</main>
+
+<script src="/static/app.js"></script>
+</body>
+</html>

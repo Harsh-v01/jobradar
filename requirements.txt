@@ -1,0 +1,8 @@
+requests>=2.31
+PyYAML>=6.0
+pypdf>=4.2
+
+# Only needed if llm.provider is "jev". Harmless to install either way.
+typesafe-sdk
+fastapi>=0.110
+uvicorn[standard]>=0.29

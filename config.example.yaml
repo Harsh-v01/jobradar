@@ -1,0 +1,80 @@
+# ---- who gets the digest ----
+email:
+  to: you@example.com
+  from: you@example.com        # the Gmail account that sends
+  smtp_host: smtp.gmail.com
+  smtp_port: 587
+  # password comes from the env var JOBRADAR_SMTP_PASSWORD (Gmail App Password)
+
+# ---- your resume ----
+resume_path: resume.pdf                # your CV, gitignored
+
+# ---- companies you want watched ----
+# board: greenhouse | lever | ashby | workable
+# slug:  the company handle on that board
+companies:
+  - { name: 'Stripe', board: greenhouse, slug: stripe, domain: stripe.com }
+  - { name: 'Anthropic', board: greenhouse, slug: anthropic, domain: anthropic.com }
+  - { name: 'Figma', board: greenhouse, slug: figma, domain: figma.com }
+  - { name: 'Notion', board: ashby, slug: notion, domain: notion.so }
+  - { name: 'Adobe', board: workday, slug: 'adobe/wd5/external_experienced', domain: adobe.com }
+  - { name: 'Oracle', board: oracle, slug: 'eeho.fa.us2.oraclecloud.com/CX_1', domain: oracle.com }
+  - { name: 'Dell', board: oracle, slug: 'enterpriseplatform.dell.com/CX_1', domain: dell.com }
+  - { name: 'Atlassian', board: atlassian, slug: 'atlassian', domain: atlassian.com }
+
+# ---- broad discovery from free aggregators ----
+discovery:
+  enabled: true
+  queries: ["full stack developer", "react developer", "node.js",
+            "backend engineer", "python developer", "ai engineer"]
+  max_per_query: 40
+
+# ---- filtering ----
+filters:
+  # keep a job only if its title matches one of these (case-insensitive substrings).
+  # empty list = keep everything.
+  title_include: ["engineer", "developer", "scientist", "intern", "analyst"]
+  title_exclude: ["staff", "principal", "director", "manager", "vp ",
+                  "head of", "lead ", "architect", "10+ years"]
+  locations: []                        # e.g. ["india", "remote"]; empty = anywhere
+
+# ---- decision model ----
+llm:
+  # xkiro - OpenAI-compatible gateway. Mistral Large 3 is free there and is the
+  # only free frontier-size model with no reasoning mode, which suits this task:
+  # judgement, not deliberation.
+  provider: xkiro
+  model: mistralai/mistral-large-2512
+
+  min_score: 6                  # 0-10; only jobs at/above this get emailed
+
+  # --- token economy -----------------------------------------------------
+  # The free tier is a fixed daily budget. Three things keep a full board
+  # inside it:
+  #   triage      - score obviously-hopeless jobs locally for free, so only
+  #                 plausible ones cost tokens (roughly halves the work)
+  #   batch_size  - one request per N jobs, so per-call overhead is amortised
+  #   the budget  - the scan stops while there is still room, and resumes
+  #                 next run; it never exhausts the key
+  triage: false                 # send everything to the model; triage was scoring
+                                # non-senior engineering roles too low on title alone
+  triage_floor: 3               # local score below this is settled locally
+  batch_size: 25
+  tokens_per_batch: 3400        # observed 2.1k-5.2k; the per-batch gate is the real guard
+  daily_token_limit: 1000000    # doubled after Telegram verification
+  max_to_score: 5000
+
+
+# ---- email digest ----
+digest:
+  max_jobs: 60                         # most jobs one email will list
+
+# ---- same-day alerts ----
+# The weekly digest is for browsing. This is for employers where a week's
+# delay costs you something: checked hourly, mailed the moment a role appears.
+alerts:
+  # Checked daily. Keep this short - the daily run fetches only these, so a
+  # shortlist is seconds of work where all 55 would be half an hour.
+  companies: [Adobe, Oracle, Atlassian]   # checked daily; keep it short
+  min_score: 6                         # unscored jobs always alert
+  max_per_alert: 15
