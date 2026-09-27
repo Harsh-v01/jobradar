@@ -10,14 +10,20 @@ email:
 resume_path: resume.pdf                # your CV, gitignored
 
 # ---- companies you want watched ----
-# board: greenhouse | lever | ashby | workable
+# board: greenhouse | lever | ashby | workable | workday | oracle
 # slug:  the company handle on that board
 companies:
-  - { name: 'Stripe', board: greenhouse, slug: stripe, domain: stripe.com }
-  - { name: 'Anthropic', board: greenhouse, slug: anthropic, domain: anthropic.com }
-  - { name: 'Figma', board: greenhouse, slug: figma, domain: figma.com }
-  - { name: 'Notion', board: ashby, slug: notion, domain: notion.so }
+  - { name: 'Anthropic', board: greenhouse, slug: 'anthropic', domain: anthropic.com }
+  - { name: 'Stripe', board: greenhouse, slug: 'stripe', domain: stripe.com }
+  - { name: 'Notion', board: ashby, slug: 'notion', domain: notion.so }
+  - { name: 'Figma', board: greenhouse, slug: 'figma', domain: figma.com }
+  - { name: 'Databricks', board: greenhouse, slug: 'databricks', domain: databricks.com }
+  - { name: 'Ramp', board: ashby, slug: 'ramp', domain: ramp.com }
+  - { name: 'HackerRank', board: greenhouse, slug: 'hackerrank', domain: hackerrank.com }
   - { name: 'Adobe', board: workday, slug: 'adobe/wd5/external_experienced', domain: adobe.com }
+  - { name: 'NVIDIA', board: workday, slug: 'nvidia/wd5/NVIDIAExternalCareerSite', domain: nvidia.com }
+  - { name: 'Salesforce', board: workday, slug: 'salesforce/wd12/External_Career_Site', domain: salesforce.com }
+  - { name: 'Fidelity', board: workday, slug: 'fmr/wd1/FidelityCareers', domain: fidelity.com }
   - { name: 'Oracle', board: oracle, slug: 'eeho.fa.us2.oraclecloud.com/CX_1', domain: oracle.com }
   - { name: 'Dell', board: oracle, slug: 'enterpriseplatform.dell.com/CX_1', domain: dell.com }
   - { name: 'Atlassian', board: atlassian, slug: 'atlassian', domain: atlassian.com }
