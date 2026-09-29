@@ -145,14 +145,56 @@ def arbeitnow(query: str, limit: int = 40) -> list[dict]:
 
 def discover(queries: list[str], max_per_query: int = 40) -> tuple[list[dict], list[str]]:
     jobs, errors = [], []
+
+    # Fetch each source once, then filter its results locally.
+    # This avoids repeatedly hitting free APIs and triggering rate limits.
+    source_jobs: dict[str, list[dict]] = {}
+
+    for fn in (remotive, arbeitnow):
+        try:
+            source_jobs[fn.__name__] = fn("", max_per_query * len(queries))
+        except Exception as e:  # noqa: BLE001
+            errors.append(f"{fn.__name__}: {type(e).__name__}: {e}")
+            source_jobs[fn.__name__] = []
+
+        # Small pause between different providers.
+        time.sleep(1.0)
+
+    # Match every query against the already-fetched results.
     for q in queries:
-        for fn in (remotive, arbeitnow):
-            try:
-                jobs.extend(fn(q, max_per_query))
-            except Exception as e:  # noqa: BLE001
-                errors.append(f"{fn.__name__}({q}): {type(e).__name__}: {e}")
-            time.sleep(0.6)   # be polite to free endpoints
-    return jobs, errors
+        q_lower = q.lower()
+
+        for source_name, source_results in source_jobs.items():
+            matches = []
+
+            for job in source_results:
+                haystack = (
+                    f"{job.get('title', '')} "
+                    f"{job.get('description', '')} "
+                    f"{job.get('location', '')}"
+                ).lower()
+
+                # Match individual words rather than requiring the entire
+                # search phrase to appear exactly.
+                words = [
+                    word for word in re.findall(r"[a-z0-9+#.]+", q_lower)
+                    if len(word) > 1
+                ]
+
+                if words and any(word in haystack for word in words):
+                    matches.append(job)
+
+                if len(matches) >= max_per_query:
+                    break
+
+            jobs.extend(matches)
+
+    # Remove duplicate jobs while preserving order.
+    unique = {}
+    for job in jobs:
+        unique[job["id"]] = job
+
+    return list(unique.values()), errors
 
 # --------------------------------------------------------------------------
 # Enterprise boards. Large companies rarely use Greenhouse/Lever; most sit on
