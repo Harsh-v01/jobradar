@@ -1,0 +1,204 @@
+name: Job Radar
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "30 2 * * *"
+      timezone: "Asia/Kolkata"
+
+permissions:
+  contents: read
+
+jobs:
+  scan:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: "pip"
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Restore JobRadar state
+        uses: actions/cache/restore@v4
+        with:
+          path: |
+            jobradar.db
+            .resume_profile.json
+          key: jobradar-state
+          restore-keys: |
+            jobradar-state-
+
+      - name: Create config
+        run: |
+          cat > config.yaml <<'EOF'
+          email:
+            to: ${{ secrets.JOBRADAR_EMAIL }}
+            from: ${{ secrets.JOBRADAR_EMAIL }}
+            smtp_host: smtp.gmail.com
+            smtp_port: 587
+
+          resume_path: resume.txt
+
+          discovery:
+            enabled: true
+
+            queries:
+
+              # Core software engineering
+              - "software engineer fresher"
+              - "software developer fresher"
+              - "associate software engineer"
+              - "junior software engineer"
+              - "junior software developer"
+              - "entry level software engineer"
+              - "entry level software developer"
+
+              # Graduate / trainee
+              - "graduate software engineer"
+              - "graduate engineer trainee"
+              - "software engineer trainee"
+              - "graduate trainee software"
+              - "fresher software trainee"
+
+              # Full stack / web
+              - "full stack developer fresher"
+              - "frontend developer fresher"
+              - "backend developer fresher"
+              - "web developer fresher"
+              - "application developer fresher"
+
+              # Technologies matching my profile
+              - "Java developer fresher"
+              - "Python developer fresher"
+              - "JavaScript developer fresher"
+              - "React developer fresher"
+              - "Node.js developer fresher"
+              - "Flutter developer fresher"
+              - "React Native developer fresher"
+
+              # QA / testing
+              - "QA engineer fresher"
+              - "software tester fresher"
+              - "automation tester fresher"
+              - "QA automation engineer fresher"
+
+              # Support / cloud / implementation
+              - "technical support engineer fresher"
+              - "developer support engineer fresher"
+              - "cloud support engineer fresher"
+              - "application support engineer fresher"
+              - "implementation engineer fresher"
+              - "solutions engineer fresher"
+              - "customer engineer fresher"
+
+              # Broad searches for smaller companies
+              - "software jobs fresher Pune"
+              - "developer jobs fresher Pune"
+              - "IT jobs fresher Pune"
+              - "software engineer 0-1 years India"
+              - "software developer 0-1 years India"
+              - "software engineer 0-2 years India"
+              - "software developer 0-2 years India"
+
+            max_per_query: 50
+
+          filters:
+            title_include:
+              - "engineer"
+              - "developer"
+              - "software"
+              - "programmer"
+              - "trainee"
+              - "graduate"
+              - "intern"
+              - "qa"
+              - "tester"
+              - "testing"
+              - "support"
+              - "implementation"
+              - "solutions"
+              - "application"
+              - "technical"
+
+            title_exclude:
+              - "senior"
+              - "sr."
+              - "sr "
+              - "staff"
+              - "principal"
+              - "lead"
+              - "manager"
+              - "director"
+              - "vp "
+              - "vice president"
+              - "head of"
+              - "architect"
+              - "chief"
+              - "expert"
+              - "5+ years"
+              - "6+ years"
+              - "7+ years"
+              - "8+ years"
+              - "10+ years"
+              - "12+ years"
+              - "15+ years"
+
+            locations:
+              - "pune"
+              - "india"
+              - "remote"
+              - "bangalore"
+              - "bengaluru"
+              - "hyderabad"
+              - "mumbai"
+              - "gurgaon"
+              - "gurugram"
+              - "noida"
+              - "delhi"
+              - "new delhi"
+              - "chennai"
+
+          llm:
+            provider: xkiro
+            model: mistralai/mistral-large-2512
+            min_score: 6
+            triage: false
+            batch_size: 25
+            tokens_per_batch: 3400
+            daily_token_limit: 1000000
+            max_to_score: 5000
+
+          digest:
+            max_jobs: 60
+
+          alerts:
+            min_score: 6
+            max_per_alert: 15
+          EOF
+
+      - name: Create resume
+        run: |
+          printf '%s' '${{ secrets.JOBRADAR_RESUME }}' > resume.txt
+
+      - name: Run JobRadar
+        env:
+          XKIRO_API_KEY: ${{ secrets.XKIRO_API_KEY }}
+          JOBRADAR_SMTP_PASSWORD: ${{ secrets.JOBRADAR_SMTP_PASSWORD }}
+        run: |
+          python -m jobradar.main run
+
+      - name: Save JobRadar state
+        uses: actions/cache/save@v4
+        with:
+          path: |
+            jobradar.db
+            .resume_profile.json
+          key: jobradar-state-${{ github.run_id }}
