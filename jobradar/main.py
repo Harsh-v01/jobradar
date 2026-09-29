@@ -321,6 +321,8 @@ def cmd_scan(cfg: dict, store: Store, quiet: bool = False) -> dict:
             cost = f" · ${scorer.cost_usd():.4f}"
         print(f"\n{len(new)} new · {len(closed)} closed · {scored} scored · "
               f"{len(errors)} errors{cost}")
+        for error in errors:
+            print(f"  ERROR: {error}", flush=True)
     return {"new": len(new), "closed": len(closed), "errors": errors}
 
 
