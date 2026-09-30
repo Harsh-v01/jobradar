@@ -355,7 +355,15 @@ def cmd_digest(cfg: dict, store: Store, days: int, dry_run: bool) -> None:
         print(f"\nPreview written to {out}")
         return
     if not pending and not closed:
-        print("Nothing to report; no email sent.")
+        html, text = digest_mod.render(
+            [],
+            [],
+            time.strftime("Week of %d %b %Y"),
+            ["No new matching opportunities today."]
+        )
+        subject = "Job Radar — No new matching opportunities today"
+        digest_mod.send(cfg["email"], subject, html, text)
+        print(f"Sent to {cfg['email']['to']}: no new matching opportunities today.")
         return
 
     count = len(pending)
