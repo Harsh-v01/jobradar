@@ -145,7 +145,6 @@ def arbeitnow(query: str, limit: int = 40) -> list[dict]:
 
 def discover(queries: list[str], max_per_query: int = 40) -> tuple[list[dict], list[str]]:
     jobs, errors = [], []
-
     # Fetch each source once, then filter its results locally.
     # This avoids repeatedly hitting free APIs and triggering rate limits.
     source_jobs: dict[str, list[dict]] = {}
@@ -195,7 +194,6 @@ def discover(queries: list[str], max_per_query: int = 40) -> tuple[list[dict], l
         unique[job["id"]] = job
 
     return list(unique.values()), errors
-
 # --------------------------------------------------------------------------
 # Enterprise boards. Large companies rarely use Greenhouse/Lever; most sit on
 # Workday or Oracle Recruiting Cloud, each with a public JSON endpoint.
@@ -231,7 +229,6 @@ def workday(name: str, slug: str) -> list[dict]:
         if len(postings) < 20:
             break
     return out
-
 
 def oracle_cloud(name: str, slug: str) -> list[dict]:
     """slug is 'host/siteNumber', e.g. 'eeho.fa.us2.oraclecloud.com/CX_1'."""
