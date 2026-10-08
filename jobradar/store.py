@@ -32,24 +32,12 @@ CREATE TABLE IF NOT EXISTS jobs (
     alerted             INTEGER NOT NULL DEFAULT 0,
     description         TEXT,
 
-    -- Job classification
     job_type            TEXT,
     salary              TEXT,
     tags                TEXT,
-
-    -- India/fresher eligibility
     india_eligibility   TEXT,
     experience_level    TEXT
 );
-
-CREATE INDEX IF NOT EXISTS idx_first_seen
-ON jobs(first_seen);
-
-CREATE INDEX IF NOT EXISTS idx_job_type
-ON jobs(job_type);
-
-CREATE INDEX IF NOT EXISTS idx_india_eligibility
-ON jobs(india_eligibility);
 
 CREATE TABLE IF NOT EXISTS runs (
     ts INTEGER PRIMARY KEY,
@@ -68,11 +56,20 @@ class Store:
         self.db = sqlite3.connect(str(path))
         self.db.row_factory = sqlite3.Row
 
+        # First create the base tables.
+        #
+        # IMPORTANT:
+        # Do NOT create indexes here.
+        #
+        # Existing JobRadar databases may have been created before
+        # newer columns such as job_type existed.
         self.db.executescript(SCHEMA)
 
-        # Make older JobRadar databases compatible with the
-        # newer schema without deleting existing jobs.
+        # Add any columns missing from older databases.
         self._migrate()
+
+        # Only create indexes AFTER migration has completed.
+        self._create_indexes()
 
         self.db.commit()
 
@@ -111,6 +108,30 @@ class Store:
                     f"{column} {ddl}"
                 )
 
+    def _create_indexes(self) -> None:
+        """Create indexes after all required columns exist."""
+
+        self.db.execute(
+            """
+            CREATE INDEX IF NOT EXISTS idx_first_seen
+            ON jobs(first_seen)
+            """
+        )
+
+        self.db.execute(
+            """
+            CREATE INDEX IF NOT EXISTS idx_job_type
+            ON jobs(job_type)
+            """
+        )
+
+        self.db.execute(
+            """
+            CREATE INDEX IF NOT EXISTS idx_india_eligibility
+            ON jobs(india_eligibility)
+            """
+        )
+
     # ------------------------------------------------------------------
     # Ingest
     # ------------------------------------------------------------------
@@ -134,8 +155,6 @@ class Store:
             ).fetchone()
 
             if existing:
-                # The job is still present.
-                # Refresh last_seen and reopen it if necessary.
                 self.db.execute(
                     """
                     UPDATE jobs
