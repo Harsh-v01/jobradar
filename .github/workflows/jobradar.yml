@@ -9,9 +9,14 @@ on:
 permissions:
   contents: read
 
+concurrency:
+  group: jobradar
+  cancel-in-progress: false
+
 jobs:
   scan:
     runs-on: ubuntu-latest
+    timeout-minutes: 30
 
     steps:
       - name: Checkout
@@ -52,7 +57,9 @@ jobs:
 
             queries:
 
-              # Core software engineering
+              # =========================
+              # FULL-TIME — CORE SOFTWARE
+              # =========================
               - "software engineer fresher"
               - "software developer fresher"
               - "associate software engineer"
@@ -60,22 +67,37 @@ jobs:
               - "junior software developer"
               - "entry level software engineer"
               - "entry level software developer"
+              - "software engineer 0-1 years India"
+              - "software developer 0-1 years India"
+              - "software engineer 0-2 years India"
+              - "software developer 0-2 years India"
 
-              # Graduate / trainee
+              # =========================
+              # FULL-TIME — GRADUATE / TRAINEE
+              # =========================
               - "graduate software engineer"
               - "graduate engineer trainee"
               - "software engineer trainee"
               - "graduate trainee software"
               - "fresher software trainee"
+              - "graduate developer India"
+              - "graduate software developer India"
 
-              # Full stack / web
+              # =========================
+              # FULL-TIME — WEB / FULL STACK
+              # =========================
               - "full stack developer fresher"
               - "frontend developer fresher"
               - "backend developer fresher"
               - "web developer fresher"
               - "application developer fresher"
+              - "full stack developer 0-2 years India"
+              - "frontend developer 0-2 years India"
+              - "backend developer 0-2 years India"
 
-              # Technologies matching my profile
+              # =========================
+              # FULL-TIME — TECHNOLOGIES
+              # =========================
               - "Java developer fresher"
               - "Python developer fresher"
               - "JavaScript developer fresher"
@@ -83,14 +105,21 @@ jobs:
               - "Node.js developer fresher"
               - "Flutter developer fresher"
               - "React Native developer fresher"
+              - "SQL developer fresher"
 
-              # QA / testing
+              # =========================
+              # FULL-TIME — QA / TESTING
+              # =========================
               - "QA engineer fresher"
               - "software tester fresher"
               - "automation tester fresher"
               - "QA automation engineer fresher"
+              - "QA engineer 0-2 years India"
+              - "software testing fresher India"
 
-              # Support / cloud / implementation
+              # =========================
+              # FULL-TIME — SUPPORT / CLOUD
+              # =========================
               - "technical support engineer fresher"
               - "developer support engineer fresher"
               - "cloud support engineer fresher"
@@ -98,15 +127,75 @@ jobs:
               - "implementation engineer fresher"
               - "solutions engineer fresher"
               - "customer engineer fresher"
+              - "technical support engineer 0-2 years India"
+              - "cloud support engineer 0-2 years India"
 
-              # Broad searches for smaller companies
+              # =========================
+              # INTERNSHIPS — CORE
+              # =========================
+              - "software engineer intern India"
+              - "software engineering internship India"
+              - "software developer intern India"
+              - "software developer internship India"
+              - "developer intern India"
+              - "engineering intern India"
+              - "IT intern India"
+              - "IT internship India"
+
+              # =========================
+              # INTERNSHIPS — WEB / FULL STACK
+              # =========================
+              - "full stack developer intern India"
+              - "frontend developer intern India"
+              - "backend developer intern India"
+              - "web developer intern India"
+              - "full stack internship India"
+              - "frontend internship India"
+              - "backend internship India"
+
+              # =========================
+              # INTERNSHIPS — TECHNOLOGIES
+              # =========================
+              - "Python developer intern India"
+              - "Java developer intern India"
+              - "JavaScript developer intern India"
+              - "React developer intern India"
+              - "Node.js developer intern India"
+              - "Flutter developer intern India"
+              - "React Native developer intern India"
+              - "SQL developer intern India"
+
+              # =========================
+              # INTERNSHIPS — QA / TESTING
+              # =========================
+              - "QA intern India"
+              - "software testing intern India"
+              - "software tester intern India"
+              - "QA automation intern India"
+              - "testing internship India"
+
+              # =========================
+              # INTERNSHIPS — SUPPORT / CLOUD
+              # =========================
+              - "technical support intern India"
+              - "developer support intern India"
+              - "cloud support intern India"
+              - "application support intern India"
+              - "implementation intern India"
+              - "solutions engineer intern India"
+              - "IT support intern India"
+
+              # =========================
+              # PUNE / INDIA BROAD SEARCH
+              # =========================
               - "software jobs fresher Pune"
               - "developer jobs fresher Pune"
               - "IT jobs fresher Pune"
-              - "software engineer 0-1 years India"
-              - "software developer 0-1 years India"
-              - "software engineer 0-2 years India"
-              - "software developer 0-2 years India"
+              - "software internship Pune"
+              - "software engineer internship Pune"
+              - "developer internship Pune"
+              - "software jobs fresher India"
+              - "developer jobs fresher India"
 
             max_per_query: 50
 
@@ -119,6 +208,7 @@ jobs:
               - "trainee"
               - "graduate"
               - "intern"
+              - "internship"
               - "qa"
               - "tester"
               - "testing"
@@ -150,6 +240,14 @@ jobs:
               - "10+ years"
               - "12+ years"
               - "15+ years"
+
+            # Only these two job categories are wanted.
+            job_types:
+              - "internship"
+              - "full_time"
+
+            # Reject jobs where India eligibility cannot be established.
+            require_india_eligibility: true
 
             locations:
               - "pune"
@@ -196,6 +294,7 @@ jobs:
           python -m jobradar.main run
 
       - name: Save JobRadar state
+        if: always()
         uses: actions/cache/save@v4
         with:
           path: |
